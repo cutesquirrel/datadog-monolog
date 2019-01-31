@@ -34,7 +34,6 @@ final class DatadogHandler extends AbstractProcessingHandler
 
     /**
      * @param string     $apiKey API key created from your datadog account.
-     * @param string     $type   Your log type - it helps classify the logs you send.
      * @param bool       $ssl    Whether or not SSL encryption should be used.
      * @param int|string $level  The minimum logging level to trigger this handler.
      * @param bool       $bubble Whether or not messages that are handled should bubble up the stack.
@@ -44,7 +43,6 @@ final class DatadogHandler extends AbstractProcessingHandler
      */
     public function __construct(
         string $apiKey,
-        string $type = 'http-bulk',
         bool $ssl = true,
         int $level = Logger::DEBUG,
         bool $bubble = true,
@@ -52,7 +50,6 @@ final class DatadogHandler extends AbstractProcessingHandler
     ) {
 
         $this->apiKey = $apiKey;
-        $this->type = $type;
         $this->endpoint = $ssl ? 'https://' . $host : 'http://' . $host ;
         $this->endpoint .= '/v1/input/'. $apiKey;
 
