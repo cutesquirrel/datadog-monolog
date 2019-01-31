@@ -1,10 +1,11 @@
 {
-  "name": "inpsyde/logzio-monolog",
-  "description": "Logz.io integration for Monolog",
+  "name": "cutesquirrel/datadog-monolog",
+  "description": "Datadog integration for Monolog",
   "keywords": [
     "log",
     "logging",
-    "monolog"
+    "monolog",
+    "datadog"
   ],
   "type": "library",
   "license": "MIT",
@@ -13,6 +14,12 @@
       "name": "Christian Brückner",
       "email": "chris@chrico.info",
       "homepage": "https://www.chrico.info",
+      "role": "Developer"
+    },
+    {
+      "name": "Etienne VOILLIOT",
+      "email": "cutesquirrel.dev@gmail.com",
+      "homepage": "https://lapetitepausetechnique.net",
       "role": "Developer"
     }
   ],

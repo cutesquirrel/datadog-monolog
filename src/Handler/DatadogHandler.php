@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace Inpsyde\LogzIoMonolog\Handler;
+namespace cutesquirrel\Handler;
 
-use Inpsyde\LogzIoMonolog\Formatter\LogzIoFormatter;
+use cutesquirrel\DatadogMonolog\Formatter\DatadogFormatter;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Handler\Curl\Util;
@@ -10,14 +10,14 @@ use Monolog\Logger;
 
 /**
  * @author Christian Brückner <chris@chrico.info>
+ * @author Etienne VOILLIOT <cutesquirrel.dev@gmail.com>
  *
- * @link https://support.logz.io/hc/en-us/categories/201158705-Log-Shipping
- * @link https://app.logz.io/#/dashboard/data-sources/Bulk-HTTPS
+ * @link https://docs.datadoghq.com/api/?lang=bash#logs
  */
-final class LogzIoHandler extends AbstractProcessingHandler
+final class DatadogHandler extends AbstractProcessingHandler
 {
-    const HOST_EU = 'listener-eu.logz.io';
-    const HOST_US = 'listener.logz.io';
+    const HOST_EU = 'http-intake.logs.datadoghq.eu';
+    const HOST_US = 'http-intake.logs.datadoghq.com';
 
     /**
      * @var string
@@ -33,7 +33,7 @@ final class LogzIoHandler extends AbstractProcessingHandler
     private $endpoint;
 
     /**
-     * @param string     $token  Log token supplied by Logz.io.
+     * @param string     $apiKey API key created from your datadog account.
      * @param string     $type   Your log type - it helps classify the logs you send.
      * @param bool       $ssl    Whether or not SSL encryption should be used.
      * @param int|string $level  The minimum logging level to trigger this handler.
@@ -43,23 +43,18 @@ final class LogzIoHandler extends AbstractProcessingHandler
      * @throws \LogicException If curl extension is not available.
      */
     public function __construct(
-        string $token,
+        string $apiKey,
         string $type = 'http-bulk',
         bool $ssl = true,
         int $level = Logger::DEBUG,
         bool $bubble = true,
-        string $host = self::HOST_US
+        string $host = self::HOST_EU
     ) {
 
-        $this->token = $token;
+        $this->apiKey = $apiKey;
         $this->type = $type;
-        $this->endpoint = $ssl ? 'https://' . $host . ':8071/' : 'http://' . $host . ':8070/';
-        $this->endpoint .= '?'.http_build_query(
-            [
-                'token' => $this->token,
-                'type' => $this->type,
-            ]
-        );
+        $this->endpoint = $ssl ? 'https://' . $host : 'http://' . $host ;
+        $this->endpoint .= '/v1/input/'. $apiKey;
 
         parent::__construct($level, $bubble);
     }
@@ -108,6 +103,6 @@ final class LogzIoHandler extends AbstractProcessingHandler
     // phpcs:disable InpsydeCodingStandard.CodeQuality.NoAccessors.NoGetter
     protected function getDefaultFormatter(): FormatterInterface
     {
-        return new LogzIoFormatter();
+        return new DatadogFormatter();
     }
 }
