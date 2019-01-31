@@ -31,16 +31,16 @@
   "require-dev": {
     "ext-json": "*",    
     "phpunit/phpunit": "^6.3",
-    "inpsyde/php-coding-standards": "^0.13"
+    "cutesquirrel/php-coding-standards": "^0.13"
   },
   "autoload": {
     "psr-4": {
-      "Inpsyde\\LogzIoMonolog\\": "src/"
+      "DatadogMonolog\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Inpsyde\\LogzIoMonolog\\Tests\\": "tests/"
+      "DatadogMonolog\\Tests\\": "tests/"
     }
   }
 }

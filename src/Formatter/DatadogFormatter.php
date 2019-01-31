@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace cutesquirrel\DatadogMonolog\Formatter;
+namespace DatadogMonolog\Formatter;
 
 use Monolog\Formatter\JsonFormatter;
 
@@ -8,12 +8,28 @@ use Monolog\Formatter\JsonFormatter;
  * Encodes message information into JSON in a format compatible with Datadog.
  *
  * @author Christian Brückner <chris@chrico.info>
+ * @author Etienne Voilliot <cutesquirrel.dev@gmail.com>
  */
 class DatadogFormatter extends JsonFormatter {
+
   /**
-   * yyyy-MM-dd'T'HH:mm:ss.SSSZ
+   * @param string
    */
-  const DATETIME_FORMAT = 'c';
+  protected $hostname = '';
+
+  /**
+   * @param string
+   */
+  protected $appname = '';
+
+  /**
+   * @param string
+   */
+  protected $service = '';
+  /**
+   * @param string
+   */
+  protected $ddSource = '';
 
   /**
    * Overrides the default batch mode to new lines for compatibility with the Datadog bulk API.
@@ -26,28 +42,63 @@ class DatadogFormatter extends JsonFormatter {
   }
 
   /**
-   * Appends the '@timestamp' parameter for Logz.io.
+   * Set hostname
+   *
+   * @param string $hostname
+   */
+  public function setHostname(string $hostname) {
+    $this->hostname = $hostname;
+  }
+
+  /**
+   * Set appname
+   *
+   * @param string $appname
+   */
+  public function setAppname(string $appname) {
+    $this->appname = $appname;
+  }
+
+  /**
+   * Set service
+   *
+   * @param string $appname
+   */
+  public function setService(string $service) {
+    $this->service = $service;
+  }
+
+  /**
+   * Set ddSource
+   *
+   * @param string $ddSource
+   */
+  public function setDdSource(string $ddSource) {
+    $this->ddSource = $ddSource;
+  }
+
+  /**
+   * Appends the 'hostname' and 'appname' parameter for indexing by Datadog.
    *
    * @param array $record
    *
-   * @link https://support.logz.io/hc/en-us/articles/210206885
    * @see  \Monolog\Formatter\JsonFormatter::format()
    *
    * @return string
    */
   public function format(array $record): string {
-    if (isset($record['datetime']) && ($record['datetime'] instanceof \DateTimeInterface)) {
-      $record['@timestamp'] = $record['datetime']->format(self::DATETIME_FORMAT);
-      unset($record['datetime']);
-    }
 
-    // Logz.io does not allow [null] or [""] as context/extra.
-    if (isset($record['context'])) {
-      $record['context'] = array_filter((array)$record['context']);
+    if (!empty($this->hostname)) {
+      $record['hostname'] = $this->hostname;
     }
-
-    if (isset($record['extra'])) {
-      $record['extra'] = array_filter((array)$record['extra']);
+    if (!empty($this->appname)) {
+      $record['appname'] = $this->appname;
+    }
+    if (!empty($this->service)) {
+      $record['service'] = $this->service;
+    }
+    if (!empty($this->ddsource)) {
+      $record['ddsource'] = $this->ddsource;
     }
 
     return parent::format($record);
