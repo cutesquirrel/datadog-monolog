@@ -2,7 +2,7 @@
 
 namespace Inpsyde\DatadogMonolog\Tests\Unit\Formatter;
 
-use cutesquirrel\DatadogMonolog\Formatter\DatadogFormatter;
+use DatadogMonolog\Formatter\DatadogFormatter;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;

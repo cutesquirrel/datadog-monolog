@@ -24,14 +24,13 @@
     }
   ],
   "require": {
-    "php": "^7.0",
+    "php": "^7.1",
     "ext-curl": "*",
     "monolog/monolog": "^2.0"
   },
   "require-dev": {
-    "ext-json": "*",    
-    "phpunit/phpunit": "^6.3",
-    "cutesquirrel/php-coding-standards": "^0.13"
+    "ext-json": "*",
+    "phpunit/phpunit": "^9"
   },
   "autoload": {
     "psr-4": {

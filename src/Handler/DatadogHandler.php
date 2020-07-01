@@ -58,7 +58,11 @@ final class DatadogHandler extends AbstractProcessingHandler {
     parent::__construct($level, $bubble);
   }
 
-  protected function write(array $record) {
+  /**
+   * @param array $record
+   * @return void
+   */
+  protected function write(array $record): void {
     $this->send($record['formatted']);
   }
 
@@ -75,7 +79,10 @@ final class DatadogHandler extends AbstractProcessingHandler {
     Util::execute($handle);
   }
 
-  public function handleBatch(array $records) {
+  /**
+   * @param array $records
+   */
+  public function handleBatch(array $records): void {
     $level = $this->level;
     $records = array_filter(
       $records,
