@@ -7,6 +7,7 @@ use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Handler\Curl\Util;
 use Monolog\Logger;
+use Monolog\LogRecord;
 
 /**
  * @author Christian Brückner <chris@chrico.info>
@@ -62,7 +63,7 @@ final class DatadogHandler extends AbstractProcessingHandler {
    * @param array $record
    * @return void
    */
-  protected function write(array $record): void {
+  protected function write(LogRecord $record): void {
     $this->send($record['formatted']);
   }
 

@@ -3,6 +3,7 @@
 namespace DatadogMonolog\Formatter;
 
 use Monolog\Formatter\JsonFormatter;
+use Monolog\LogRecord;
 
 /**
  * Encodes message information into JSON in a format compatible with Datadog.
@@ -10,7 +11,8 @@ use Monolog\Formatter\JsonFormatter;
  * @author Christian Brückner <chris@chrico.info>
  * @author Etienne Voilliot <cutesquirrel.dev@gmail.com>
  */
-class DatadogFormatter extends JsonFormatter {
+class DatadogFormatter extends JsonFormatter
+{
 
   /**
    * @param string
@@ -34,10 +36,11 @@ class DatadogFormatter extends JsonFormatter {
   /**
    * Overrides the default batch mode to new lines for compatibility with the Datadog bulk API.
    *
-   * @param int  $batchMode
+   * @param int $batchMode
    * @param bool $appendNewline
    */
-  public function __construct(int $batchMode = self::BATCH_MODE_NEWLINES, bool $appendNewline = true) {
+  public function __construct(int $batchMode = self::BATCH_MODE_NEWLINES, bool $appendNewline = true)
+  {
     parent::__construct($batchMode, $appendNewline);
   }
 
@@ -46,7 +49,8 @@ class DatadogFormatter extends JsonFormatter {
    *
    * @param string $hostname
    */
-  public function setHostname(string $hostname) {
+  public function setHostname(string $hostname)
+  {
     $this->hostname = $hostname;
   }
 
@@ -55,7 +59,8 @@ class DatadogFormatter extends JsonFormatter {
    *
    * @param string $appname
    */
-  public function setAppname(string $appname) {
+  public function setAppname(string $appname)
+  {
     $this->appname = $appname;
   }
 
@@ -64,7 +69,8 @@ class DatadogFormatter extends JsonFormatter {
    *
    * @param string $appname
    */
-  public function setService(string $service) {
+  public function setService(string $service)
+  {
     $this->service = $service;
   }
 
@@ -73,34 +79,35 @@ class DatadogFormatter extends JsonFormatter {
    *
    * @param string $ddSource
    */
-  public function setDdSource(string $ddSource) {
+  public function setDdSource(string $ddSource)
+  {
     $this->ddSource = $ddSource;
   }
 
+
   /**
-   * Appends the 'hostname' and 'appname' parameter for indexing by Datadog.
+   * Appends the 'timestamp' parameter for indexing by Loggly.
    *
-   * @param array $record
-   *
-   * @see  \Monolog\Formatter\JsonFormatter::format()
-   *
-   * @return string
+   * @see https://www.loggly.com/docs/automated-parsing/#json
+   * @see \Monolog\Formatter\JsonFormatter::format()
    */
-  public function format(array $record): string {
+  protected function normalizeRecord(LogRecord $record): array
+  {
+    $recordData = parent::normalizeRecord($record);
 
     if (!empty($this->hostname)) {
-      $record['hostname'] = $this->hostname;
+      $recordData['hostname'] = $this->hostname;
     }
     if (!empty($this->appname)) {
-      $record['appname'] = $this->appname;
+      $recordData['appname'] = $this->appname;
     }
     if (!empty($this->service)) {
-      $record['service'] = $this->service;
+      $recordData['service'] = $this->service;
     }
-    if (!empty($this->ddsource)) {
-      $record['ddsource'] = $this->ddsource;
+    if (!empty($this->ddSource)) {
+      $recordData['ddSource'] = $this->ddSource;
     }
 
-    return parent::format($record);
+    return $recordData;
   }
 }
