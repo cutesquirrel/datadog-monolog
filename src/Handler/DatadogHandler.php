@@ -43,7 +43,7 @@ final class DatadogHandler extends AbstractProcessingHandler
     /**
      * @var string
      */
-F
+
     private $endpoint;
 
     /**
