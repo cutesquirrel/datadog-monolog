@@ -15,112 +15,138 @@ use Monolog\LogRecord;
  *
  * @link   https://docs.datadoghq.com/api/?lang=bash#logs
  */
-final class DatadogHandler extends AbstractProcessingHandler {
-  const HOST_EU = 'http-intake.logs.datadoghq.eu';
-  const HOST_US = 'http-intake.logs.datadoghq.com';
+final class DatadogHandler extends AbstractProcessingHandler
+{
+    const HOST_EU = 'http-intake.logs.datadoghq.eu';
+    const HOST_US = 'http-intake.logs.datadoghq.com';
+
+    /**
+     * @var string
+     */
+    private $hostname;
+
+    /**
+     * @var string
+     */
+    private $appname;
+
+    /**
+     * @var string
+     */
+    private $service;
+
+    /**
+     * @var string
+     */
+    private $ddSource;
+
+    /**
+     * @var string
+     */
+F
+    private $endpoint;
+
+    /**
+     * @param string $apiKey API key Fcreated from your datadog account.
+     * @param string $hostname Host name supplied by Datadog.
+     * @param string $appname Application name supplied by Datadog.
+     * @param string $service Service name supplied by Datadog.
+     * @param string $ddSource Source name supplied by Datadog.
+     * @param bool $ssl Whether or not SSL encryption should be used.
+     * @param int|string $level The minimum logging level to trigger this handler.
+     * @param bool $bubble Whether or not messages that are handled should bubble up the stack.
+     * @param string $host One of existing listener hosts, by default 'listener.logz.io'
+     *
+     * @throws \LogicException If curl extension is not available.
+     */
+    public function __construct(
+        string $apiKey,
+        string $hostname = '', string $appname = '', string $service = '', string $ddSource = 'REST-API',
+        bool   $ssl = true,
+        int    $level = Logger::DEBUG,
+        bool   $bubble = true,
+        string $host = self::HOST_EU
+    )
+    {
 
 
-  /**
-   * @var string
-   */
-  private $endpoint;
+        $this->endpoint = $ssl ? 'https://' . $host : 'http://' . $host;
+        $this->endpoint .= '/v1/input/' . $apiKey;
 
-  /**
-   * @param string     $apiKey   API key created from your datadog account.
-   * @param string     $hostname Host name supplied by Datadog.
-   * @param string     $appname  Application name supplied by Datadog.
-   * @param string     $service  Service name supplied by Datadog.
-   * @param string     $ddSource Source name supplied by Datadog.
-   * @param bool       $ssl      Whether or not SSL encryption should be used.
-   * @param int|string $level    The minimum logging level to trigger this handler.
-   * @param bool       $bubble   Whether or not messages that are handled should bubble up the stack.
-   * @param string     $host     One of existing listener hosts, by default 'listener.logz.io'
-   *
-   * @throws \LogicException If curl extension is not available.
-   */
-  public function __construct(
-    string $apiKey,
-    string $hostname = '', string $appname = '', string $service = '', string $ddSource = 'REST-API',
-    bool $ssl = true,
-    int $level = Logger::DEBUG,
-    bool $bubble = true,
-    string $host = self::HOST_EU
-  ) {
+        $this->hostname = $hostname;
+        $this->appname = $appname;
+        $this->service = $service;
+        $this->ddSource = $ddSource;
 
-    $this->apiKey = $apiKey;
-    $this->endpoint = $ssl ? 'https://' . $host : 'http://' . $host;
-    $this->endpoint .= '/v1/input/' . $apiKey;
-
-    $this->hostname = $hostname;
-    $this->appname = $appname;
-    $this->service = $service;
-    $this->ddSource = $ddSource;
-
-    parent::__construct($level, $bubble);
-  }
-
-  /**
-   * @param array $record
-   * @return void
-   */
-  protected function write(LogRecord $record): void {
-    $this->send($record['formatted']);
-  }
-
-  // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
-  protected function send($data) {
-    $handle = curl_init();
-
-    curl_setopt($handle, CURLOPT_URL, $this->endpoint);
-    curl_setopt($handle, CURLOPT_POST, true);
-    curl_setopt($handle, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($handle, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-
-    Util::execute($handle);
-  }
-
-  /**
-   * @param array $records
-   */
-  public function handleBatch(array $records): void {
-    $level = $this->level;
-    $records = array_filter(
-      $records,
-      function (array $record) use ($level): bool {
-
-        return ($record['level'] >= $level);
-      }
-    );
-
-    if ($records) {
-      $this->send(
-        $this->getFormatter()
-          ->formatBatch($records)
-      );
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  // phpcs:disable InpsydeCodingStandard.CodeQuality.NoAccessors.NoGetter
-  protected function getDefaultFormatter(): FormatterInterface {
-    $formatter = new DatadogFormatter();
-
-    if (!empty($this->hostname)) {
-      $formatter->setHostname($this->hostname);
-    }
-    if (!empty($this->appname)) {
-      $formatter->setAppname($this->appname);
-    }
-    if (!empty($this->service)) {
-      $formatter->setService($this->service);
-    }
-    if (!empty($this->ddSource)) {
-      $formatter->setDdSource($this->ddSource);
+        parent::__construct($level, $bubble);
     }
 
-    return $formatter;
-  }
+    /**
+     * @param array $record
+     * @return void
+     */
+    protected function write(LogRecord $record): void
+    {
+        $this->send($record['formatted']);
+    }
+
+    // phpcs:disable Inpsyde.CodeQuality.ArgumentTypeDeclaration.NoArgumentType
+    protected function send($data)
+    {
+        $handle = curl_init();
+
+        curl_setopt($handle, CURLOPT_URL, $this->endpoint);
+        curl_setopt($handle, CURLOPT_POST, true);
+        curl_setopt($handle, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+
+        Util::execute($handle);
+    }
+
+    /**
+     * @param array $records
+     */
+    public function handleBatch(array $records): void
+    {
+        $level = $this->level;
+        $records = array_filter(
+            $records,
+            function (array $record) use ($level): bool {
+
+                return ($record['level'] >= $level);
+            }
+        );
+
+        if ($records) {
+            $this->send(
+                $this->getFormatter()
+                    ->formatBatch($records)
+            );
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    // phpcs:disable InpsydeCodingStandard.CodeQuality.NoAccessors.NoGetter
+    protected function getDefaultFormatter(): FormatterInterface
+    {
+        $formatter = new DatadogFormatter();
+
+        if (!empty($this->hostname)) {
+            $formatter->setHostname($this->hostname);
+        }
+        if (!empty($this->appname)) {
+            $formatter->setAppname($this->appname);
+        }
+        if (!empty($this->service)) {
+            $formatter->setService($this->service);
+        }
+        if (!empty($this->ddSource)) {
+            $formatter->setDdSource($this->ddSource);
+        }
+
+        return $formatter;
+    }
 }
